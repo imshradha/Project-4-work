@@ -37,8 +37,7 @@ reviews:{
     }
 },
 deletedAt :{
-    type:Date,
-    default: null,
+    type:String,
 },
 isDeleted: {
     type:Boolean, 

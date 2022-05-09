@@ -18,7 +18,7 @@ const getBooksById = async function (req, res) {
             return res.status(400).send({ status: false, msg: "Invalid Book-Id" });
         }
 
-        const isbookIdInDB = await booksModel.findOne({ _id: bookId, isDeleted: false })
+        const isbookIdInDB = await booksModel.findOne({ _id: bookId, isDeleted: false }).select({ __v: 0}).lean()
        
         if (!isbookIdInDB) {
             return res.status(404).send({ status: false, msg: "Book-Id is not present in DB" });
@@ -29,42 +29,13 @@ const getBooksById = async function (req, res) {
 
         if (reviewByBookId.length == 0) {
 
-            let obj = {
-                _id: isbookIdInDB._id,
-                title: isbookIdInDB.title,
-                excerpt: isbookIdInDB.excerpt,
-                userId: isbookIdInDB.userId,
-                category: isbookIdInDB.category,
-                subcategory: isbookIdInDB.subcategory,
-                isDeleted: isbookIdInDB.isDeleted,
-                reviews: isbookIdInDB.reviews,
-                deletedAt: isbookIdInDB.deletedAt,
-                releasedAt: isbookIdInDB.releasedAt,
-                createdAt: isbookIdInDB.createdAt,
-                updatedAt: isbookIdInDB.updatedAt,
-                reviewsData: []
-            }
-            return res.status(200).send({ status: true, message: "Success", data: obj })
+            isbookIdInDB["reviewsData"]=[]
+            return res.status(200).send({ status: true, message: "Success", data: isbookIdInDB })
         }
 
-        let obj = {
-            _id: isbookIdInDB._id,
-            title: isbookIdInDB.title,
-            excerpt: isbookIdInDB.excerpt,
-            userId: isbookIdInDB.userId,
-            category: isbookIdInDB.category,
-            subcategory: isbookIdInDB.subcategory,
-            isDeleted: isbookIdInDB.isDeleted,
-            reviews: isbookIdInDB.reviews,
-            deletedAt: isbookIdInDB.deletedAt,
-            releasedAt: isbookIdInDB.releasedAt,
-            createdAt: isbookIdInDB.createdAt,
-            updatedAt: isbookIdInDB.updatedAt,
-            reviewsData: reviewByBookId
-        }
+       isbookIdInDB["reviewsData"]=reviewByBookId
 
-
-        return res.status(200).send({ status: true, message: "Success", data: obj })
+        return res.status(200).send({ status: true, message: "Success", data: isbookIdInDB })
 
 
     }
@@ -113,23 +84,27 @@ const updateByBookId = async function (req, res) {
         }
 
         let isRegisteredtitle = await booksModel.findOne({ title: data.title });
-        console.log(isRegisteredtitle)
+       
         if (isRegisteredtitle) {
             return res.status(404).send({ status: false, message: "Title already registered" });
         }
 
-
-
         let isRegisteredISBN = await booksModel.findOne({ ISBN: data.ISBN });
+
         if (isRegisteredISBN) {
             return res.status(404).send({ status: false, message: "ISBN already registered" });
         }
 
         const updateById = await booksModel.findOneAndUpdate({ _id: bookId, isDeleted: false }, {
             $set: {
-                title: data.title, excerpt: data.excerpt, releasedAt: moment().format("DD-MM-YYYY, hh:mm a"), ISBN: data.ISBN
+                title: data.title, excerpt: data.excerpt, releasedAt: moment().format("DD-MM-YYYY"), ISBN: data.ISBN
             }
         }, { new: true });
+        
+        if(!updateById){
+            return res.status(404).send({ status: false, message: "No Data Match" });
+        }
+       
         return res.status(200).send({ status: true, message: "Success", data: updateById })
 
     }
