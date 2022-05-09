@@ -7,7 +7,7 @@ const userController = require("../controllers/userController")
 
  // User routes
  router.post('/register', userController.createUser);
-//  router.post('/login', userController.loginAuthor);
+ router.post('/login', userController.loginUser);
 
 
 //blog routes
