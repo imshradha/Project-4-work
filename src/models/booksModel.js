@@ -43,11 +43,7 @@ deletedAt :{
 isDeleted: {
     type:Boolean, 
     default: false
-},
-publishedAt:{
-    type:Date,
-    default: null,
-},  
+}, 
 releasedAt:{
     type: String,
     required: true,
