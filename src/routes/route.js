@@ -3,7 +3,7 @@ const router = express.Router();
 
 const booksController = require("../controllers/booksController")
 const userController = require("../controllers/userController")
-const {getBooksById} =require('../extra work/mz')
+const {getBooksById,updateByBookId} =require('../extra work/mz')
 
 
  // User routes
@@ -14,6 +14,7 @@ const {getBooksById} =require('../extra work/mz')
 //blog routes
 router.post('/books', booksController.createBooks);
 router.get('/books/:bookId', getBooksById);
+router.put('/books/:bookId', updateByBookId);
 // router.get('/books',authController.autherAuth, booksController.listBlog);
 // router.put('/blogs',authController.autherAuth, blogController.updateBlog);
 //  router.delete('/blogs/:blogId', authController.autherAuth, blogController.deleteBlogByID);

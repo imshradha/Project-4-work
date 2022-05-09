@@ -52,7 +52,7 @@ const createUser = async function(req, res) {
             }
             let user = req.body
             let userCreated = await userModel.create(user)
-            res.status(200).send({ status: true, data: userCreated })
+            res.status(201).send({ status: true, data: userCreated })
         } else {
             return res.status(400).send({ msg: "Bad request" });
         }
