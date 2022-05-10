@@ -67,8 +67,8 @@ const createBooks = async function (req, res) {
     if (isRegisteredISBN) {
       return res.status(404).send({ status: false, message: "ISBN already registered" });
     }
-    if (!/^[0-9-+()]*$/.test(data.ISBN)) {
-      return res.status(400).send({ status: false, data: "plz enter a ISBN No." });
+    if (!/^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/.test(data.ISBN)) {
+      return res.status(400).send({ status: false, data: "plz enter a valid 13 digit ISBN No." });
     }
     
     let book = req.body;
