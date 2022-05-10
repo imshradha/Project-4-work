@@ -81,8 +81,44 @@ const createBooks = async function (req, res) {
   }
 };
 
+//============GET/books===========
+
+const GetFilteredBook = async function (req, res) {
+  try {
+    let queryData = req.query
+
+    if (queryData.isDeleted == "true") {
+      return res.status(400).send({ status: false, data: "Books is already deleted" })
+    }
+
+    let obj = {}
+
+    if (queryData.userId != undefined) {
+      obj.userId = queryData.userId
+    }
+    if (queryData.category != undefined) {
+      obj.category = queryData.category
+    }
+    if (queryData.subcategory != undefined) {
+      obj.subcategory = queryData.subcategory
+    }
+
+    obj.isDeleted = false;
+
+
+    const bookData = await booksModel.find(obj)
+    if (bookData.length == 0) {
+      return res.status(400).send({ status: false, data: "No Books found" })
+    }
+    return res.status(200).send({ status: true, data: bookData })
+  } catch (err) {
+    res.status(500).send({ status: false, err: err.message });
+  }
+};
+
 module.exports = {
   createBooks,
+  GetFilteredBook
 
 }
 
