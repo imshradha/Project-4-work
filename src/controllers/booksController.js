@@ -20,6 +20,10 @@ const createBooks = async function (req, res) {
   try {
 
     let data = req.body;
+    
+     if(req.body.userId != req.UserLogin){
+        return res.status(400).send({status: false, massage: "you are not authrized !!!!"})
+    }
     if(!isValidRequestBody(data)){
       return res.status(400).send({ status: false, data: "Body is required" })
     }

@@ -3,6 +3,7 @@ const router = express.Router();
 
 const booksController = require("../controllers/booksController")
 const userController = require("../controllers/userController")
+const middleWareAuth = require("../middleWare/userAuth")
 
 
  // User routes
@@ -11,7 +12,7 @@ const userController = require("../controllers/userController")
 
 
 //blog routes
-router.post('/books', booksController.createBooks);
+router.post('/books',  middleWareAuth.userAuth, booksController.createBooks);
 // router.get('/books',authController.autherAuth, booksController.listBlog);
 // router.put('/blogs',authController.autherAuth, blogController.updateBlog);
 //  router.delete('/blogs/:blogId', authController.autherAuth, blogController.deleteBlogByID);
