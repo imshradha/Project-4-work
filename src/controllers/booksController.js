@@ -20,20 +20,17 @@ const createBooks = async function (req, res) {
   try {
 
     let data = req.body;
-    
-     if(req.body.userId != req.UserLogin){
-        return res.status(400).send({status: false, massage: "you are not authrized !!!!"})
-    }
-    if(!isValidRequestBody(data)){
+  
+    if (!isValidRequestBody(data)) {
       return res.status(400).send({ status: false, data: "Body is required" })
     }
     if (!isValid(data.title)) {
       return res.status(400).send({ status: false, data: "Title is required" })
     }
     let isRegisteredtitle = await booksModel.find({ title: data.title });
-            if (isRegisteredtitle.length != 0) {
-                return res.status(400).send({ status: false, message: "Title already registered" });
-     }
+    if (isRegisteredtitle.length != 0) {
+      return res.status(400).send({ status: false, message: "Title already registered" });
+    }
     if (!isValid(data.excerpt)) {
       return res.status(400).send({ status: false, data: "excerpt is required" })
     }
@@ -51,22 +48,22 @@ const createBooks = async function (req, res) {
       return res.status(400).send({ status: false, message: "User is not registered with us ", });
     }
     if (!mongoose.Types.ObjectId.isValid(data.userId)) {
-      return res.status(400).send({ status: false, msg: "Invalid userId" });
-    }
+      return res.status(400).send({ status: false, msg: "Invalid Book-Id" });
+  }
     if (!isValid(data.ISBN)) {
       return res.status(400).send({ status: false, data: "ISBN is required" })
     }
     let isRegisteredISBN = await booksModel.find({ ISBN: data.ISBN });
-            if (isRegisteredISBN.length != 0) {
-                return res.status(404).send({ status: false, message: "ISBN already registered" });
-     }
+    if (isRegisteredISBN.length != 0) {
+      return res.status(404).send({ status: false, message: "ISBN already registered" });
+    }
     if (!/^[0-9-+()]*$/.test(data.ISBN)) {
       return res.status(400).send({ status: false, data: "plz enter a ISBN No." });
     }
-    if(!isValid(data.category)) {
+    if (!isValid(data.category)) {
       return res.status(400).send({ status: false, data: "category is required" })
     }
-    if (!isValid(data.subcategory))  {
+    if (!isValid(data.subcategory)) {
       return res.status(400).send({ status: false, data: "subcategory is required" })
     }
     let book = req.body;
@@ -76,8 +73,8 @@ const createBooks = async function (req, res) {
     let bookCreated = await booksModel.create(book);
     res.status(201).send({ data: bookCreated });
   } catch (err) {
-  res.status(500).send({ status: false, err: err.message });
-}
+    res.status(500).send({ status: false, err: err.message });
+  }
 };
 
 module.exports = {
