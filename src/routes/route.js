@@ -4,6 +4,7 @@ const router = express.Router();
 const booksController = require("../controllers/booksController")
 const userController = require("../controllers/userController")
 const {getBooksById,updateByBookId} =require('../extra work/mz')
+const {createReview} =require('../controllers/reviewController')
 
 
  // User routes
@@ -15,6 +16,9 @@ const {getBooksById,updateByBookId} =require('../extra work/mz')
 router.post('/books', booksController.createBooks);
 router.get('/books/:bookId', getBooksById);
 router.put('/books/:bookId', updateByBookId);
+
+// Review routes
+router.post('/books/:bookId/review',createReview)
 // router.get('/books',authController.autherAuth, booksController.listBlog);
 // router.put('/blogs',authController.autherAuth, blogController.updateBlog);
 //  router.delete('/blogs/:blogId', authController.autherAuth, blogController.deleteBlogByID);
