@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
-const booksController = require("../controllers/booksController")
+const {createBooks,GetFilteredBook,getBooksById,updateByBookId,deleteBooksBYId}
+= require("../controllers/booksController")
 const userController = require("../controllers/userController")
 const {authentication,authorization} = require("../middleWare/userAuth")
 const {getBooksById,updateByBookId} =require('../extra work/mz')
@@ -14,9 +15,11 @@ const {createReview, deleteBooksByIdAndReviewById} =require('../controllers/revi
 
 
 //blog routes
-router.post('/books',authentication, authorization, booksController.createBooks);
+router.post('/books', createBooks);
+router.get('/books', GetFilteredBook);
 router.get('/books/:bookId', getBooksById);
 router.put('/books/:bookId', updateByBookId);
+router.put('/books/:bookId', deleteBooksBYId);
 
 // Review routes
 router.post('/books/:bookId/review',createReview)
