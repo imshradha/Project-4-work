@@ -20,9 +20,7 @@ const isValidIdType = function (objectId) {
     return mongoose.Types.ObjectId.isValid(objectId)
   }
 
-const isValidIdType = function(objectId){
-return mongoose.Types.ObjectId.isValid(objectId)
-}
+
 //////////////////////////////// create Review//////////////////////////////////////////////
 
 const createReview = async function (req, res) {
@@ -70,7 +68,6 @@ const createReview = async function (req, res) {
 
 // ========================================= review api to update review by id in parama =============================================================================// 
 
-<<<<<<< HEAD
 
 const updateReview = async function (req, res) {
     try {
@@ -136,17 +133,11 @@ const updateReview = async function (req, res) {
 const deleteBooksByIdAndReviewById = async function (req, res) {
 
     try {
-=======
-const deleteBooksByIdAndReviewById = async function (req, res) {
-
-    try{
->>>>>>> f2933476763e669095aa0063b6a09fb46a8d0087
         const queryParams = req.query
         const requestBody = req.body
         const bookId = req.params.bookId
         const reviewId = req.params.reviewId
 
-<<<<<<< HEAD
         if (isValidRequestBody(queryParams)) {
             return res.status(400).send({ status: false, message: "invalid request" })
         }
@@ -193,54 +184,6 @@ const deleteBooksByIdAndReviewById = async function (req, res) {
 
         res.status(200).send({ status: true, message: "review has been successfully deleted" })
 
-=======
-        if(isValidRequestBody(queryParams)){
-        return  res.status(400).send({status: false, message : "invalid request"})
-        }
-
-        if(isValidRequestBody(requestBody)){
-        return  res.status(400).send({status : false, message : "data is not required in request body"})
-        }
-        
-        if(!bookId){
-        return res.status(400).send({status : false, message : "bookId is required in path params"})
-        }   
-
-        if(!isValidIdType(bookId)){
-        return  res.status(400).send({status : false, message : 'enter a valid bookId'})
-        }
-
-        const bookByBookId = await booksModel.findOne({_id : bookId, isDeleted : false, deletedAt : null})
-
-        if(!bookByBookId){
-        return res.status(404).send({status : false, message : 'No book found by blog id'})
-        }
-
-        if(!reviewId){
-        return res.status(400).send({status : false, message : "reviewId is required in path params"})
-        }   
-    
-        if(!isValidIdType(reviewId)){
-        return  res.status(400).send({status : false, message : `enter a valid reviewId`})
-        }
-
-        const reviewByReviewId = await reviewModel.findOne({_id : reviewId, isDeleted : false})
-
-        if(!reviewByReviewId){
-        return res.status(404).send({status : false, message : `no review found by ${reviewId}`})
-        }
-
-        if(reviewByReviewId.bookId != bookId){
-        return res.status(404).send({status : false, message : "review is not from this book"})  
-        }
-
-        const markDirtyReview = await reviewModel.findByIdAndUpdate(reviewId, {$set : {isDeleted : true}}, {new : true})
-
-        const updateReviewCountInBook = await booksModel.findByIdAndUpdate(bookId, {$inc : {reviews : -1}}, {new : true})
-
-        res.status(200).send({status: true, message : "review has been successfully deleted"})
-        
->>>>>>> f2933476763e669095aa0063b6a09fb46a8d0087
     }
     catch (error) {
         return res.status(500).send({ status: false, message: error.message })
@@ -249,9 +192,4 @@ const deleteBooksByIdAndReviewById = async function (req, res) {
 }
 
 
-<<<<<<< HEAD
 module.exports = { createReview,updateReview,deleteBooksByIdAndReviewById }
-=======
-module.exports={createReview, deleteBooksByIdAndReviewById}
-module.exports={createReview}
->>>>>>> f2933476763e669095aa0063b6a09fb46a8d0087
