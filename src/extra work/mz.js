@@ -24,14 +24,7 @@ const getBooksById = async function (req, res) {
             return res.status(404).send({ status: false, msg: "Book-Id is not present in DB" });
         }
         
-        const reviewByBookId = await reviewModel.find({ boolId: bookId, isDeleted: false }).select({ createdAt: 0, updatedAt: 0, isDeleted: 0 })
-
-
-        if (reviewByBookId.length == 0) {
-
-            isbookIdInDB["reviewsData"]=[]
-            return res.status(200).send({ status: true, message: "Success", data: isbookIdInDB })
-        }
+        const reviewByBookId = await reviewModel.find({ bookId: bookId, isDeleted: false }).select({ createdAt: 0, updatedAt: 0, isDeleted: 0 })
 
        isbookIdInDB["reviewsData"]=reviewByBookId
 
