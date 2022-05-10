@@ -52,7 +52,7 @@ const createUser = async function(req, res) {
             }
             let user = req.body
             let userCreated = await userModel.create(user)
-            res.status(200).send({ status: true, data: userCreated })
+            res.status(201).send({ status: true, data: userCreated })
         } else {
             return res.status(400).send({ msg: "Bad request" });
         }
@@ -80,6 +80,9 @@ let loginUser = async (req, res) =>{
       } else if(!email){
         return res.status(400).send({status: false, massage: "Email requrid"})
 
+      } else if (!(/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/).test(email)) {
+        return res.status(400).send({ status: false, message: "Please mention valid Email" })
+
       } else if(!password){
         return res.status(400).send({status: false, massage: "Password requrid"})
        
@@ -89,18 +92,18 @@ let loginUser = async (req, res) =>{
 
       let token = jwt.sign({
         UserLogin: UserLogin._id.toString(),
-        organisation: "group_functionUp",
+        orgnaisation: "function_Up_friend",
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + (10 * 6) / 2
       },
-      "group_31_functionUp",{
-
-        expiresIn: '10m'	// expires in 24 hours
-
-      }
+      "group_31_functionUp"
       );
+        const date = new Date();
+        console.log(`Token Generated at:- ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`);
+        // Printing JWT token
 
       res.setHeader("x-api-key", token);
-      console.log(token);
-      res.status(201).send({ status: true, data: {token} });         
+      res.status(201).send({ status: true, message: 'Success', data: {token} });         
 
     }catch(error){
       res.status(500).send({status: false, massage: error.massage})
