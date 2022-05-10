@@ -3,7 +3,7 @@ const booksModel = require('../models/booksModel')
 const reviewModel = require("../models/reviewModel")
 const moment =require('moment')
 const mongoose = require("mongoose")
-//*************************************VALIDATION FUNCTIONS************************************************* */
+//------------------------------------------VALIDATION FUNCTIONS-------------------------------------------*/
 const isValid = function(value){
     if(typeof (value) == 'undefined' || value == null) return false
     if(typeof (value) == 'string' && value.trim().length > 0) return true
@@ -83,13 +83,13 @@ const deleteBooksByIdAndReviewById = async function (req, res) {
         }   
 
         if(!isValidIdType(bookId)){
-        return  res.status(400).send({status : false, message : `enter a valid bookId`})
+        return  res.status(400).send({status : false, message : 'enter a valid bookId'})
         }
 
         const bookByBookId = await booksModel.findOne({_id : bookId, isDeleted : false, deletedAt : null})
 
         if(!bookByBookId){
-        return res.status(404).send({status : false, message : `No book found by ${bookId} `})
+        return res.status(404).send({status : false, message : 'No book found by blog id'})
         }
 
         if(!reviewId){
