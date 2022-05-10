@@ -14,7 +14,7 @@ const {createReview} =require('../controllers/reviewController')
 
 
 //blog routes
-router.post('/books',authentication, authorization, booksController.createBooks);
+router.post('/books', booksController.createBooks);
 router.get('/books/:bookId', getBooksById);
 router.put('/books/:bookId', updateByBookId);
 
