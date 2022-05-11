@@ -94,7 +94,7 @@ let loginUser = async (req, res) =>{
         UserLogin: UserLogin._id.toString(),
         orgnaisation: "function_Up_friend",
         iat: Math.floor(Date.now() / 1000),
-        exp: Math.floor(Date.now() / 1000) + (10 * 6) / 2
+        exp: Math.floor(Date.now() / 1000) + (60 * 60) / 2
       },
       "group_31_functionUp"
       );
@@ -112,7 +112,7 @@ let loginUser = async (req, res) =>{
 
 module.exports = {
       createUser,
-      loginUser }
+      loginUser, }
 
 //-------------------------- User login part end ------------------------------------//
 //
