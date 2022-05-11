@@ -129,8 +129,9 @@ const updateReview = async function (req, res) {
       res.status(500).send({ status: false, error: error.message });
     }
   }  
+  //==========================================
 
-const deleteBooksByIdAndReviewById = async function (req, res) {
+  const deleteBooksByIdAndReviewById = async function(req, res) {
 
     try {
         const queryParams = req.query
@@ -180,12 +181,9 @@ const deleteBooksByIdAndReviewById = async function (req, res) {
 
         const markDirtyReview = await reviewModel.findByIdAndUpdate(reviewId, { $set: { isDeleted: true } }, { new: true })
 
-        const updateReviewCountInBook = await booksModel.findByIdAndUpdate(bookId, { $inc: { reviews: -1 } }, { new: true })
+        res.status(200).send({ status: true, message: "review has been successfully deleted", deleteddata: markDirtyReview })
 
-        res.status(200).send({ status: true, message: "review has been successfully deleted" })
-
-    }
-    catch (error) {
+    } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
     }
 
