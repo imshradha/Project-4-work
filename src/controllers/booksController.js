@@ -35,10 +35,10 @@ const createBooks = async function (req, res) {
     if (!isValidRequestBody(data)) {
       return res.status(400).send({ status: false, message: "Body is required" })
     }
-    
-    if ( (data.isDeleted && typeof data.isDeleted != "boolean" ) || data.isDeleted==true) {
+
+    if ((data.isDeleted && typeof data.isDeleted != "boolean") || data.isDeleted == true) {
       return res.status(400).send({ status: false, message: "isDeleted must be false" })
-  }
+    }
 
     if (!isValidObjectId(userId)) {
       return res.status(400).send({ status: false, message: "Invalid User-Id" });
@@ -85,28 +85,28 @@ const createBooks = async function (req, res) {
       return res.status(400).send({ status: false, data: "subcategory is required..." })
     }
 
-    if(!Array.isArray(subcategory)){
+    if (!Array.isArray(subcategory)) {
       return res.status(400).send({ status: false, data: "Subcategory is must be an array of String" })
     }
-     
-   let validSubcategory= true;
-    const checkTypeofSubcategory = subcategory.map(x=> {
-      if(typeof x !="string" || x.trim().length ==0){
-      validSubcategory =false  }
+
+    let validSubcategory = true;
+    const checkTypeofSubcategory = subcategory.map(x => {
+      if (typeof x != "string" || x.trim().length == 0) {
+        validSubcategory = false
+      }
     })
 
-    if(validSubcategory==false)
-    {
+    if (validSubcategory == false) {
       return res.status(400).send({ status: false, data: "Subcategory is not valid..." })
     }
-   
+
     if (!releasedAt) {
       return res.status(400).send({ status: false, message: "Please provide released-date" });
     }
 
     if (!releasedAt_ValidatorRegEx.test(releasedAt)) {
       return res.status(400).send({ status: false, data: "plz enter a valid Date format" });
-  }
+    }
 
     let bookCreated = await booksModel.create(data)
 
@@ -127,9 +127,9 @@ const GetFilteredBook = async function (req, res) {
     // if (queryData.isDeleted == "true") {
     //   return res.status(400).send({ status: false, data: "Books is already deleted" })
     // }
-    if ( (queryData.isDeleted && typeof queryData.isDeleted != "boolean" ) || queryData.isDeleted==true) {
+    if ((queryData.isDeleted && typeof queryData.isDeleted != "boolean") || queryData.isDeleted == true) {
       return res.status(400).send({ status: false, message: "isDeleted must be false" })
-  }
+    }
 
     let obj = {}
 
@@ -194,6 +194,13 @@ const updateByBookId = async function (req, res) {
   try {
     const bookId = req.params.bookId
     const data = req.body
+    const ISBN_ValidatorRegEx = /^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/;
+
+    const releasedAt_ValidatorRegEx = /^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]|(?:Jan|Mar|May|Jul|Aug|Oct|Dec)))\1|(?:(?:29|30)(\/|-|\.)(?:0?[1,3-9]|1[0-2]|(?:Jan|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec))\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)(?:0?2|(?:Feb))\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9]|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep))|(?:1[0-2]|(?:Oct|Nov|Dec)))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$/;
+
+    if (!isValidRequestBody(data)) {
+      return res.status(400).send({ status: false, data: "Body is required" })
+    }
 
     if (!(data.title || data.excerpt || data.ISBN || data.releasedAt)) {
       return res.status(400).send({ status: false, msg: "Invalid Filters" })
@@ -212,10 +219,7 @@ const updateByBookId = async function (req, res) {
       return res.status(404).send({ status: false, msg: "Book-Id is not present in DB" });
     }
 
-    if (!isValidRequestBody(data)) {
-      return res.status(400).send({ status: false, data: "Body is required" })
-    }
-
+   
     let isRegisteredtitle = await booksModel.findOne({ title: data.title });
 
     if (isRegisteredtitle) {
@@ -228,9 +232,17 @@ const updateByBookId = async function (req, res) {
       return res.status(404).send({ status: false, message: "ISBN already registered" });
     }
 
+    if (!ISBN_ValidatorRegEx.test(data.ISBN)) {
+      return res.status(400).send({ status: false, data: "plz enter a valid 13 digit ISBN No." });
+    }
+    if (data.releasedAt && !releasedAt_ValidatorRegEx.test(data.releasedAt)) {
+      return res.status(400).send({ status: false, data: "plz enter a valid Date format" });
+    }
+
+
     const updateById = await booksModel.findOneAndUpdate({ _id: bookId, isDeleted: false }, {
       $set: {
-        title: data.title, excerpt: data.excerpt, releasedAt: moment().format("DD-MM-YYYY"), ISBN: data.ISBN
+        title: data.title, excerpt: data.excerpt, releasedAt: data.releasedAt, ISBN: data.ISBN
       }
     }, { new: true });
 
@@ -249,32 +261,32 @@ const updateByBookId = async function (req, res) {
 //===============DELETE/By bookid====================
 
 
-const deleteBooksBYId = async function(req, res) {
+const deleteBooksBYId = async function (req, res) {
   try {
-      let bookId = req.params.bookId
-      const queryParams = req.query
-      const requestBody = req.body
+    let bookId = req.params.bookId
+    const queryParams = req.query
+    const requestBody = req.body
 
-      if (isValidRequestBody(queryParams)) {
-          return res.status(400).send({ status: false, message: "invalid request" })
-      }
+    if (isValidRequestBody(queryParams)) {
+      return res.status(400).send({ status: false, message: "invalid request" })
+    }
 
-      if (isValidRequestBody(requestBody)) {
-          return res.status(400).send({ status: false, message: "Data is not required in request body" })
-      }
+    if (isValidRequestBody(requestBody)) {
+      return res.status(400).send({ status: false, message: "Data is not required in request body" })
+    }
 
-      let checkBook = await booksModel.findOne({ _id: bookId, isDeleted: false })
+    let checkBook = await booksModel.findOne({ _id: bookId, isDeleted: false })
 
-      if (!checkBook) { // change -- add this for book not exist 
-          return res.status(404).send({ status: false, message: 'book not found or already deleted' })
-      }
+    if (!checkBook) { // change -- add this for book not exist 
+      return res.status(404).send({ status: false, message: 'book not found or already deleted' })
+    }
 
-      let updateBook = await booksModel.findOneAndUpdate({ _id: bookId }, { isDeleted: true, deletedAt: moment().format("DD-MM-YYYY, hh:mm a") }, { new: true })
+    let updateBook = await booksModel.findOneAndUpdate({ _id: bookId }, { isDeleted: true, deletedAt: moment().format("DD-MM-YYYY, hh:mm a") }, { new: true })
 
-      res.status(200).send({ status: true, message: 'sucessfully deleted', data: updateBook })
+    res.status(200).send({ status: true, message: 'sucessfully deleted', data: updateBook })
 
   } catch (error) {
-      res.status(500).send({ status: false, error: error.message });
+    res.status(500).send({ status: false, error: error.message });
   }
 }
 
