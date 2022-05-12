@@ -6,10 +6,12 @@ title: {
     type:String,
     required: true,
     unique: true,
+    trim:true
 },
 excerpt:{
     type: String,
     required: true,
+    trim:true
 }, 
 userId:{
     type: ObjectId,
@@ -20,14 +22,17 @@ ISBN:{
     type:String,
     required: true,
     unique: true,
+    trim:true
 },
 category: {
     type: String,
     required: true,
+    trim:true
 },
 subcategory: [{
     type: String,
     required: true,
+    trim:true
 }],
 reviews:{
     type: Number,
@@ -46,6 +51,7 @@ isDeleted: {
 releasedAt:{
     type: String,
     required: true,
+    trim:true
 },
 },{timestamps:true})
 module.exports = mongoose.model("Books", booksSchema)
