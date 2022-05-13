@@ -16,7 +16,7 @@ const isValid = function (value) {
 const isValidRequestBody = function (requestBody) {
   return Object.keys(requestBody).length > 0
 }
-const isValidObjectId = function (objectId) { // change -- add this validation to check object id type
+const isValidObjectId = function (objectId) { 
   return mongoose.Types.ObjectId.isValid(objectId)
 }
 

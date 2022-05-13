@@ -15,9 +15,6 @@ const isValidRequestBody = function (requestBody) {
   return Object.keys(requestBody).length > 0
 }
 
-const isValidObjectId = function (objectId) { // change -- add this validation to check object id type
-  return mongoose.Types.ObjectId.isValid(objectId)
-}
 
 //-------------------------- User Register------------------------------------//
 
@@ -28,6 +25,10 @@ const createUser = async function (req, res) {
     const data = req.body
     const { title, name, phone, email, password, address } = req.body
 
+    const phoneValidator = /^(?:(?:\+|0{0,2})91(\s*|[\-])?|[0]?)?([6789]\d{2}([ -]?)\d{3}([ -]?)\d{4})$/
+
+    const emailValidator = /^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/
+
     if (!isValidRequestBody(data)) {
       return res.status(400).send({ status: false, message: "Body is required" })
     }
@@ -35,6 +36,7 @@ const createUser = async function (req, res) {
     if (!isValid(title)) {
       return res.status(400).send({ status: false, data: "title is required" })
     }
+
     if (!(title == 'Mr' || title == 'Mrs' || title == 'Miss')) {
       return res.status(400).send({ status: false, data: "title only can be Mr, Mrs and Miss" })
     }
@@ -47,13 +49,14 @@ const createUser = async function (req, res) {
       return res.status(400).send({ status: false, data: "Phone No. is required" })
     }
 
-    if (!/^(?:(?:\+|0{0,2})91(\s*|[\-])?|[0]?)?([6789]\d{2}([ -]?)\d{3}([ -]?)\d{4})$/.test(
+    if (!phoneValidator.test(
       phone
     )) {
       return res.status(400).send({ status: false, message: "plz enter a valid Phone no" });
     }
 
-    let isRegisteredphone = await userModel.findOne({ phone }).lean();
+    const isRegisteredphone = await userModel.findOne({ phone }).lean();
+
     if (isRegisteredphone) {
       return res.status(400).send({ status: false, message: "phoneNo. number already registered" });
     }
@@ -62,43 +65,48 @@ const createUser = async function (req, res) {
       return res.status(400).send({ status: false, data: "Email is required" })
     }
 
-    if (!/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(email)) {
+    if (!emailValidator.test(email)) {
       return res.status(400).send({ status: false, data: "plz enter a valid Email" });
     }
 
-    let isRegisteredEmail = await userModel.findOne({ email }).lean();
+    const isRegisteredEmail = await userModel.findOne({ email }).lean();
     if (isRegisteredEmail) {
       return res.status(400).send({ status: false, message: "email id already registered" });
     }
 
     if (!isValid(password)) {
-      return res.status(400).send({ status: false, data: "Password is required" })
+      return res.status(400).send({ status: false, message: "Password is required" })
     }
     if (password.length < 8) {
-      return res.status(400).send({ status: false, data: "Your password must be at least 8 characters" })
+      return res.status(400).send({ status: false, message: "Your password must be at least 8 characters" })
     }
     if (password.length > 15) {
-      return res.status(400).send({ status: false, data: "Password cannot be more than 15 characters" })
+      return res.status(400).send({ status: false, message: "Password cannot be more than 15 characters" })
     }
 
-    if (address.street && address.street.trim().length == 0) {
-      return res.status(400).send({ status: false, data: "street can not be a empty string" })
+    if (address.street != undefined) {
+      if (typeof address.street != 'string' || address.street.trim().length == 0) {
+        return res.status(400).send({ status: false, message: "street can not be a empty string" })
+      }
     }
 
-    if (address.city && address.city.trim().length == 0) {
-      return res.status(400).send({ status: false, data: "city can not be a empty string" })
+    if (address.city != undefined) {
+      if (typeof address.city != 'string' || address.city.trim().length == 0) {
+        return res.status(400).send({ status: false, data: "city can not be a empty string" })
+      }
     }
 
-    if (address.pincode && address.pincode.trim().length == 0) {
-      return res.status(400).send({ status: false, data: "Pincode can not be a empty string" })
+    if (address.pincode != undefined) {
+      if (address.pincode.toString().trim().length == 0 || address.pincode.toString().trim().length != 6) {
+        return res.status(400).send({ status: false, data: "Pincode can not be a empty string or must be 6 digit number " })
+      }
     }
 
-    let userCreated = await userModel.create(data)
+    const userCreated = await userModel.create(data)
 
     res.status(201).send({ status: true, data: userCreated })
 
-  }
-  catch (err) {
+  } catch (err) {
     res.status(500).send({ status: false, err: err.message });
   }
 }
@@ -107,8 +115,7 @@ const createUser = async function (req, res) {
 //-------------------------- User Register end ------------------------------------//
 
 
-
-//-------------------------- User login part ------------------------------------//
+///-------------------------- User login part ------------------------------------//
 
 let loginUser = async (req, res) => {
 
@@ -122,30 +129,30 @@ let loginUser = async (req, res) => {
     }
 
     if (!isValid(email)) {
-      return res.status(400).send({ status: false, message: "Email requrid" })
+      return res.status(400).send({ status: false, message: "Email is required..." })
 
     }
 
     if (!(/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/).test(email)) {
-      return res.status(400).send({ status: false, message: "Please mention valid Email" })
+      return res.status(400).send({ status: false, message: "Please enter a valid Email-Id..." })
 
     }
     if (!isValid(password)) {
-      return res.status(400).send({ status: false, message: "Password requrid" })
+      return res.status(400).send({ status: false, message: "Password is required..." })
 
     }
 
     const UserLogin = await userModel.findOne({ email: email, password: password }).lean()
 
     if (!UserLogin) {
-      return res.status(400).send({ status: false, message: "Email and password is not correct" })
+      return res.status(404).send({ status: false, message: "Email-Id or password are not correct" })
     }
 
     const token = jwt.sign({
       UserLogin: UserLogin._id.toString(),
       orgnaisation: "function_Up_friend",
       iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + (10 * 60) / 2
+      exp: Math.floor(Date.now() / 1000) + (60 * 60) / 2
     },
       "group_31_functionUp"
     );
