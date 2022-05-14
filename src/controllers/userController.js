@@ -141,7 +141,7 @@ let loginUser = async (req, res) => {
 
     }
 
-    const UserLogin = await userModel.findOne({ email: email, password: password }).lean()
+    const UserLogin = await userModel.findOne({  email, password }).lean()
 
     if (!UserLogin) {
       return res.status(404).send({ status: false, message: "Email-Id or password are not correct" })
