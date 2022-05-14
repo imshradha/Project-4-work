@@ -5,7 +5,7 @@ const {createBooks,GetFilteredBook,getBooksById,updateByBookId,deleteBooksBYId}
 = require("../controllers/booksController")
 const userController = require("../controllers/userController")
 const {authentication,authorization} = require("../middleWare/userAuth")
-//const {getBooksById,updateByBookId} =require('../extra work/mz')
+// const {getBooksById,updateByBookId} =require('../extra work/mz')
 const {createReview, deleteBooksByIdAndReviewById} =require('../controllers/reviewController')
 
 
@@ -22,8 +22,8 @@ router.put('/books/:bookId',authentication,authorization, updateByBookId);
 router.delete('/books/:bookId',authentication,authorization, deleteBooksBYId);
 
 // Review routes
-router.post('/books/:bookId/review',authentication,authorization,createReview)
-router.delete('/books/:bookId/review/:reviewId',authentication,authorization, deleteBooksByIdAndReviewById);
+router.post('/books/:bookId/review',createReview)
+// router.delete('/books/:bookId/review/:reviewId', deleteBooksByIdAndReviewById);
 // router.get('/books',authController.autherAuth, booksController.listBlog);
 // router.put('/blogs',authController.autherAuth, blogController.updateBlog);
 //  router.delete('/blogs/:blogId', authController.autherAuth, blogController.deleteBlogByID);

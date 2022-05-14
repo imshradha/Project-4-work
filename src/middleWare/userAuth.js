@@ -54,7 +54,7 @@ let authorization = async (req, res, next) => {
         //  } 
          
           if(!bookId){
-            return res.status(403).send({ status: false, message: 'book Id is must be present !!!!!!!' });
+            return res.status(400).send({ status: false, message: 'book Id is must be present !!!!!!!' });
 
         } else if(mongoose.Types.ObjectId.isValid(bookId) == false) {
             return res.status(400).send({ status: false, message: "book id  is not valid !!!!!!" });
@@ -64,7 +64,7 @@ let authorization = async (req, res, next) => {
         let bookById = await booksModel.findOne({_id: bookId,isDeleted: false, deletedAt: null})
 
         if(!bookById){
-            return res.status(403).send({ status: false, message: 'book Id is not found  !!!!!!!' });
+            return res.status(404).send({ status: false, message: 'book Id is not found  !!!!!!!' });
 
         } else if (decodedToken.UserLogin != bookById.userId) {
             return res.status(403).send({ status: false, message: 'unauthorized access' });

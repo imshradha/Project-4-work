@@ -10,13 +10,12 @@ const reviewSchema = new mongoose.Schema({
     reviewedBy: {
     type:String,
     default: 'Guest',
-    //  value:{
-    //     reviewer's name,
-    //  },
+    trim:true
 },
 reviewedAt:{
     type: String,
     required: true,
+    trim:true
 },
 rating:{
     type: Number,
@@ -26,6 +25,7 @@ rating:{
 }, 
 review:{
     type:String,
+    trim:true
 },
 isDeleted: {
     type:Boolean, 
