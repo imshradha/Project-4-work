@@ -3,7 +3,8 @@ const booksModel = require('../models/booksModel')
 const reviewModel = require("../models/reviewModel")
 const moment = require('moment')
 const mongoose = require("mongoose")
-//------------------------------------------VALIDATION FUNCTIONS-------------------------------------------*/
+
+//========================================VALIDATION FUNCTIONS==========================================================
 
 const isValid = function (value) {
   if (!value || typeof value != "string" || value.trim().length == 0) return false;
@@ -20,7 +21,7 @@ const isValidObjectId = function (objectId) { // change -- add this validation t
 }
 
 
-//////////////////////////////// create Review//////////////////////////////////////////////
+//========================================POST /books/:bookId/review==========================================================
 
 const createReview = async function (req, res) {
 
@@ -80,7 +81,7 @@ const createReview = async function (req, res) {
 
 }
 
-// ========================================= review api to update review by id in parama =============================================================================// 
+//========================================PUT /books/:bookId/review/:reviewId==========================================================
 
 
 const updateReview = async function (req, res) {
@@ -159,7 +160,7 @@ const updateReview = async function (req, res) {
   }
 }
 
-//==========================================
+//========================================DELETE /books/:bookId/review/:reviewId==========================================================
 
 const deleteReviewByBookIdAndReviewById = async function (req, res) {
 

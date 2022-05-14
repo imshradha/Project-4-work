@@ -1,8 +1,9 @@
 const userModel = require('../models/userModel')
 const jwt = require("jsonwebtoken");
-const mongoose = require('mongoose')
 
 
+
+//========================================VALIDATION FUNCTIONS==========================================================
 
 
 const isValid = function (value) {
@@ -16,8 +17,7 @@ const isValidRequestBody = function (requestBody) {
 }
 
 
-//-------------------------- User Register------------------------------------//
-
+//========================================POST /register==========================================================
 
 
 const createUser = async function (req, res) {
@@ -112,10 +112,9 @@ const createUser = async function (req, res) {
 }
 
 
-//-------------------------- User Register end ------------------------------------//
 
 
-///-------------------------- User login part ------------------------------------//
+//========================================POST /login==========================================================
 
 let loginUser = async (req, res) => {
 
@@ -149,10 +148,10 @@ let loginUser = async (req, res) => {
     }
 
     const token = jwt.sign({
-      UserLogin: UserLogin._id.toString(),
+      userId: UserLogin._id.toString(),
       orgnaisation: "function_Up_friend",
       iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + (60 * 60) / 2
+      exp: Math.floor(Date.now() / 1000) + (10 * 60) 
     },
       "group_31_functionUp"
     );
