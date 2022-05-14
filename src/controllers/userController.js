@@ -26,6 +26,7 @@ const isValidObjectId = function (objectId) { // change -- add this validation t
 const createUser = async function (req, res) {
   try {
     const data = req.body
+    
     const { title, name, phone, email, password, address } = req.body
 
     const phoneValidator = /^(?:(?:\+|0{0,2})91(\s*|[\-])?|[0]?)?([6789]\d{2}([ -]?)\d{3}([ -]?)\d{4})$/
@@ -100,7 +101,7 @@ const createUser = async function (req, res) {
           return res.status(400).send({ status: false, data: "city can not be a empty string" })
         }
       }
-
+      
       if (address.pincode != undefined) {
         if (address.pincode.toString().trim().length == 0 || address.pincode.toString().trim().length != 6) {
           return res.status(400).send({ status: false, data: "Pincode can not be a empty string or must be 6 digit number " })
