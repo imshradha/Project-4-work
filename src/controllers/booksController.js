@@ -5,8 +5,8 @@ const reviewModel = require('../models/reviewModel')
 const booksModel = require('../models/booksModel')
 
 
+//========================================VALIDATION FUNCTIONS==========================================================
 
-//===============POST/books====================
 const isValid = function (value) {
   if (!value || typeof value != "string" || value.trim().length == 0) return false;
   return true;
@@ -15,32 +15,45 @@ const isValid = function (value) {
 const isValidRequestBody = function (requestBody) {
   return Object.keys(requestBody).length > 0
 }
-const isValidObjectId = function (objectId) { 
+
+const isValidObjectId = function (objectId) {
   return mongoose.Types.ObjectId.isValid(objectId)
 }
 
+
+//========================================POST/books==========================================================
 
 const createBooks = async function (req, res) {
   try {
 
     const data = req.body;
+    const decodedToken = req.decodedToken
 
-    let { title, excerpt, ISBN, releasedAt, userId, category, subcategory } = req.body
+    const { title, excerpt, ISBN, releasedAt, userId, category, subcategory } = req.body
+
+    if (!userId) {
+      return res.status(403).send({ status: false, message: 'user Id is must be present !!!!!!!' });
+
+    }
+    if (!isValidObjectId(userId)) {
+      return res.status(400).send({ status: false, message: "userId  is not valid !!!!!!" });
+
+    }
+    if (decodedToken.userId != userId) {
+      return res.status(403).send({ status: false, message: 'unauthorized access' });
+
+    }
 
     const ISBN_ValidatorRegEx = /^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/;
 
-    const releasedAt_ValidatorRegEx = /^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]|(?:Jan|Mar|May|Jul|Aug|Oct|Dec)))\1|(?:(?:29|30)(\/|-|\.)(?:0?[1,3-9]|1[0-2]|(?:Jan|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec))\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)(?:0?2|(?:Feb))\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9]|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep))|(?:1[0-2]|(?:Oct|Nov|Dec)))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$/;
-
+    // const releasedAt_ValidatorRegEx = /^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]|(?:Jan|Mar|May|Jul|Aug|Oct|Dec)))\1|(?:(?:29|30)(\/|-|\.)(?:0?[1,3-9]|1[0-2]|(?:Jan|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec))\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)(?:0?2|(?:Feb))\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9]|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep))|(?:1[0-2]|(?:Oct|Nov|Dec)))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$/;
+    const releasedAt_ValidatorRegEx = /^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/
     if (!isValidRequestBody(data)) {
       return res.status(400).send({ status: false, message: "Body is required" })
     }
 
-    if ((data.isDeleted && typeof data.isDeleted != "boolean") || data.isDeleted == true) {
+    if ((data.isDeleted && data.isDeleted != "false")) {
       return res.status(400).send({ status: false, message: "isDeleted must be false" })
-    }
-
-    if (!isValidObjectId(userId)) {
-      return res.status(400).send({ status: false, message: "Invalid User-Id" });
     }
 
     if (!isValid(title)) {
@@ -90,7 +103,9 @@ const createBooks = async function (req, res) {
 
     let validSubcategory = true;
     const checkTypeofSubcategory = subcategory.map(x => {
+
       if (typeof x != "string" || x.trim().length == 0) {
+
         validSubcategory = false
       }
     })
@@ -117,7 +132,8 @@ const createBooks = async function (req, res) {
   }
 };
 
-//============GET/books===========
+//========================================Get/books==========================================================
+
 
 const GetFilteredBook = async function (req, res) {
   try {
@@ -154,7 +170,8 @@ const GetFilteredBook = async function (req, res) {
   }
 };
 
-//===============POST/get books by id====================
+//========================================GET /books/:bookIds==========================================================
+
 
 const getBooksById = async function (req, res) {
   try {
@@ -186,7 +203,11 @@ const getBooksById = async function (req, res) {
     return res.status(500).send({ status: false, message: error.message })
   }
 }
-//===================//===============PUT/update by book Id====================
+
+
+
+//========================================PUT /books/:bookId==========================================================
+
 
 const updateByBookId = async function (req, res) {
 
@@ -194,13 +215,13 @@ const updateByBookId = async function (req, res) {
     const bookId = req.params.bookId
 
     const data = req.body
-    
+
     const { title, excerpt, ISBN, releasedAt } = req.body
 
     const ISBN_ValidatorRegEx = /^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/;
 
-    const releasedAt_ValidatorRegEx = /^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]|(?:Jan|Mar|May|Jul|Aug|Oct|Dec)))\1|(?:(?:29|30)(\/|-|\.)(?:0?[1,3-9]|1[0-2]|(?:Jan|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec))\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)(?:0?2|(?:Feb))\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9]|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep))|(?:1[0-2]|(?:Oct|Nov|Dec)))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$/;
-
+    // const releasedAt_ValidatorRegEx = /^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]|(?:Jan|Mar|May|Jul|Aug|Oct|Dec)))\1|(?:(?:29|30)(\/|-|\.)(?:0?[1,3-9]|1[0-2]|(?:Jan|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec))\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)(?:0?2|(?:Feb))\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9]|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep))|(?:1[0-2]|(?:Oct|Nov|Dec)))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$/;
+    const releasedAt_ValidatorRegEx = /^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/
     if (!isValidRequestBody(data)) {
       return res.status(400).send({ status: false, data: "Body is required" })
     }
@@ -260,7 +281,9 @@ const updateByBookId = async function (req, res) {
   }
 }
 
-//===============DELETE/By bookid====================
+
+
+//========================================DELETE /books/:bookId==========================================================
 
 
 const deleteBooksBYId = async function (req, res) {
@@ -284,7 +307,7 @@ const deleteBooksBYId = async function (req, res) {
 
     let checkBook = await booksModel.findOne({ _id: bookId, isDeleted: false }).lean()
 
-    if (!checkBook) { 
+    if (!checkBook) {
       return res.status(404).send({ status: false, message: 'book not found or already deleted' })
     }
 

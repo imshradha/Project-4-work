@@ -38,21 +38,10 @@ const authentication = async(req,res,next) =>{
 
 let authorization = async (req, res, next) => {
     try{
-        //let userId = req.body.userId
+        
         let bookId = req.params.bookId
         const decodedToken = req.decodedToken
-
-        // if(!userId){
-        //     return res.status(403).send({ status: false, message: 'user Id is must be present !!!!!!!' });
-
-        // } else if(mongoose.Types.ObjectId.isValid(userId) == false) {
-        //   return res.status(400).send({ status: false, message: "userId  is not valid !!!!!!" });
-
-        // } else if (decodedToken.UserLogin != userId) {
-        //     return res.status(403).send({ status: false, message: 'unauthorized access' });
-
-        //  } 
-         
+      
           if(!bookId){
             return res.status(400).send({ status: false, message: 'book Id is must be present !!!!!!!' });
 
