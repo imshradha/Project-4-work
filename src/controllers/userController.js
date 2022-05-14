@@ -16,6 +16,9 @@ const isValidRequestBody = function (requestBody) {
   return Object.keys(requestBody).length > 0
 }
 
+const isValidObjectId = function (objectId) { // change -- add this validation to check object id type
+  return mongoose.Types.ObjectId.isValid(objectId)
+}
 
 //========================================POST /register==========================================================
 
@@ -131,23 +134,23 @@ let loginUser = async (req, res) => {
     }
 
     if (!isValid(email)) {
-      return res.status(400).send({ status: false, message: "Email is required..." })
+      return res.status(400).send({ status: false, message: "Email requrid" })
 
     }
 
     if (!(/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/).test(email)) {
-      return res.status(400).send({ status: false, message: "Please enter a valid Email-Id..." })
+      return res.status(400).send({ status: false, message: "Please mention valid Email" })
 
     }
     if (!isValid(password)) {
-      return res.status(400).send({ status: false, message: "Password is required..." })
+      return res.status(400).send({ status: false, message: "Password requrid" })
 
     }
 
     const UserLogin = await userModel.findOne({ email, password }).lean()
 
     if (!UserLogin) {
-      return res.status(404).send({ status: false, message: "Email-Id or password are not correct" })
+      return res.status(400).send({ status: false, message: "Email and password is not correct" })
     }
 
     const token = jwt.sign({

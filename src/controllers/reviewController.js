@@ -135,6 +135,11 @@ const updateReview = async function (req, res) {
     if (!(rating >= 1 && rating <= 5)) {
       return res.status(400).send({ status: false, message: "rating should be in range 1 to 5 " })
     }
+    
+    if (!isValid(reviewedBy)) {
+      data.reviewedBy = "Guest"
+    }
+
 
     if (!isValid(reviewedBy)) {
       requestBody.reviewedBy = "Guest"

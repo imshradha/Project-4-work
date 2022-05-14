@@ -77,7 +77,7 @@ const createBooks = async function (req, res) {
     }
 
     if (!isValid(ISBN)) {
-      return res.status(400).send({ status: false, data: "ISBN is required..." })
+      return res.status(400).send({ status: false, message: "ISBN is required..." })
     }
 
     let isRegisteredISBN = await booksModel.findOne({ ISBN }).lean();
@@ -87,18 +87,18 @@ const createBooks = async function (req, res) {
     }
 
     if (!ISBN_ValidatorRegEx.test(ISBN)) {
-      return res.status(400).send({ status: false, data: "plz enter a valid 13 digit ISBN No." });
+      return res.status(400).send({ status: false, message: "plz enter a valid 13 digit ISBN No." });
     }
 
     if (!isValid(category)) {
-      return res.status(400).send({ status: false, data: "Category is required..." })
+      return res.status(400).send({ status: false, message: "Category is required..." })
     }
     if (!subcategory) {
-      return res.status(400).send({ status: false, data: "subcategory is required..." })
+      return res.status(400).send({ status: false, message: "subcategory is required..." })
     }
 
     if (!Array.isArray(subcategory)) {
-      return res.status(400).send({ status: false, data: "Subcategory is must be an array of String" })
+      return res.status(400).send({ status: false, message: "Subcategory is must be an array of String" })
     }
 
     let validSubcategory = true;
@@ -111,7 +111,7 @@ const createBooks = async function (req, res) {
     })
 
     if (validSubcategory == false) {
-      return res.status(400).send({ status: false, data: "Subcategory is not valid..." })
+      return res.status(400).send({ status: false, message: "Subcategory is not valid..." })
     }
 
     if (!releasedAt) {
@@ -119,7 +119,7 @@ const createBooks = async function (req, res) {
     }
 
     if (!releasedAt_ValidatorRegEx.test(releasedAt)) {
-      return res.status(400).send({ status: false, data: "plz enter a valid Date format" });
+      return res.status(400).send({ status: false, message: "plz enter a valid Date format" });
     }
 
     let bookCreated = await booksModel.create(data)
@@ -157,13 +157,13 @@ const GetFilteredBook = async function (req, res) {
 
     obj.isDeleted = false;
 
-    const bookData = await booksModel.find(obj).sort({ title: 1 }).select({ __v: 0, ISBN: 0, subcategory: 0, isDeleted: 0, createdAt: 0, updatedAt: 0 }).lean()
+    const bookData = await booksModel.find(obj).sort({ title: 1 }).select({ __v: 0, ISBN: 0,  subcategory: 0, isDeleted: 0, createdAt: 0, updatedAt: 0, deletedAt: 0, }).lean()
 
     if (bookData.length == 0) {
       return res.status(400).send({ status: false, data: "No Books found" })
     }
 
-    return res.status(200).send({ status: true, data: bookData })
+    return res.status(200).send({ status: true,  message: 'Books list', data: bookData })
 
   } catch (err) {
     res.status(500).send({ status: false, err: err.message });
@@ -195,7 +195,7 @@ const getBooksById = async function (req, res) {
 
     isbookIdInDB["reviewsData"] = reviewByBookId
 
-    return res.status(200).send({ status: true, message: "Success", data: isbookIdInDB })
+    return res.status(200).send({ status: true, message: "Success",  message: 'Books list', data: isbookIdInDB })
 
 
   }
@@ -294,7 +294,7 @@ const deleteBooksBYId = async function (req, res) {
     const requestBody = req.body
 
     if (isValidRequestBody(queryParams)) {
-      return res.status(400).send({ status: false, message: "invalid request" })
+      return res.status(400).send({ status: false, message: "Data is not required in quary params" })
     }
 
     if (isValidRequestBody(requestBody)) {
