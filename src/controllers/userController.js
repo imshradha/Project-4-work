@@ -84,21 +84,24 @@ const createUser = async function (req, res) {
       return res.status(400).send({ status: false, message: "Password cannot be more than 15 characters" })
     }
 
-    if (address.street != undefined) {
-      if (typeof address.street != 'string' || address.street.trim().length == 0) {
-        return res.status(400).send({ status: false, message: "street can not be a empty string" })
+    if (address != undefined) {
+      if (address.street != undefined) {
+        if (typeof address.street != 'string' || address.street.trim().length == 0) {
+          return res.status(400).send({ status: false, message: "street can not be a empty string" })
+        }
       }
-    }
 
-    if (address.city != undefined) {
-      if (typeof address.city != 'string' || address.city.trim().length == 0) {
-        return res.status(400).send({ status: false, data: "city can not be a empty string" })
+
+      if (address.city != undefined) {
+        if (typeof address.city != 'string' || address.city.trim().length == 0) {
+          return res.status(400).send({ status: false, data: "city can not be a empty string" })
+        }
       }
-    }
 
-    if (address.pincode != undefined) {
-      if (address.pincode.toString().trim().length == 0 || address.pincode.toString().trim().length != 6) {
-        return res.status(400).send({ status: false, data: "Pincode can not be a empty string or must be 6 digit number " })
+      if (address.pincode != undefined) {
+        if (address.pincode.toString().trim().length == 0 || address.pincode.toString().trim().length != 6) {
+          return res.status(400).send({ status: false, data: "Pincode can not be a empty string or must be 6 digit number " })
+        }
       }
     }
 
@@ -141,7 +144,7 @@ let loginUser = async (req, res) => {
 
     }
 
-    const UserLogin = await userModel.findOne({  email, password }).lean()
+    const UserLogin = await userModel.findOne({ email, password }).lean()
 
     if (!UserLogin) {
       return res.status(404).send({ status: false, message: "Email-Id or password are not correct" })
@@ -151,7 +154,7 @@ let loginUser = async (req, res) => {
       userId: UserLogin._id.toString(),
       orgnaisation: "function_Up_friend",
       iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + (10 * 60) 
+      exp: Math.floor(Date.now() / 1000) + (10 * 60)
     },
       "group_31_functionUp"
     );
