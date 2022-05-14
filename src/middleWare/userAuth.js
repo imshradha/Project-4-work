@@ -61,7 +61,7 @@ let authorization = async (req, res, next) => {
 
         }
 
-        let bookById = await booksModel.findOne({_id: bookId,isDeleted: false, deletedAt: null})
+        let bookById = await booksModel.findOne({_id: bookId,isDeleted: false})
 
         if(!bookById){
             return res.status(404).send({ status: false, message: 'book Id is not found  !!!!!!!' });

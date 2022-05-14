@@ -8,7 +8,6 @@ const booksModel = require('../models/booksModel')
 
 //===============POST/books====================
 const isValid = function (value) {
-
   if (!value || typeof value != "string" || value.trim().length == 0) return false;
   return true;
 }
@@ -16,7 +15,7 @@ const isValid = function (value) {
 const isValidRequestBody = function (requestBody) {
   return Object.keys(requestBody).length > 0
 }
-const isValidObjectId = function (objectId) { // change -- add this validation to check object id type
+const isValidObjectId = function (objectId) { 
   return mongoose.Types.ObjectId.isValid(objectId)
 }
 
@@ -142,13 +141,13 @@ const GetFilteredBook = async function (req, res) {
 
     obj.isDeleted = false;
 
-    const bookData = await booksModel.find(obj).sort({ title: 1 }).select({ __v: 0, ISBN: 0, subcategory: 0, isDeleted: 0, createdAt: 0, updatedAt: 0 }).lean()
+    const bookData = await booksModel.find(obj).sort({ title: 1 }).select({ __v: 0, ISBN: 0,  subcategory: 0, isDeleted: 0, createdAt: 0, updatedAt: 0, deletedAt: 0, }).lean()
 
     if (bookData.length == 0) {
       return res.status(400).send({ status: false, data: "No Books found" })
     }
 
-    return res.status(200).send({ status: true, data: bookData })
+    return res.status(200).send({ status: true,  message: 'Books list', data: bookData })
 
   } catch (err) {
     res.status(500).send({ status: false, err: err.message });
@@ -179,7 +178,7 @@ const getBooksById = async function (req, res) {
 
     isbookIdInDB["reviewsData"] = reviewByBookId
 
-    return res.status(200).send({ status: true, message: "Success", data: isbookIdInDB })
+    return res.status(200).send({ status: true, message: "Success",  message: 'Books list', data: isbookIdInDB })
 
 
   }
@@ -272,7 +271,7 @@ const deleteBooksBYId = async function (req, res) {
     const requestBody = req.body
 
     if (isValidRequestBody(queryParams)) {
-      return res.status(400).send({ status: false, message: "invalid request" })
+      return res.status(400).send({ status: false, message: "Data is not required in quary params" })
     }
 
     if (isValidRequestBody(requestBody)) {

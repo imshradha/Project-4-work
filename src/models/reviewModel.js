@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 let ObjectId = mongoose.Schema.Types.ObjectId
+
 const reviewSchema = new mongoose.Schema({
 
     bookId:{
@@ -10,6 +11,7 @@ const reviewSchema = new mongoose.Schema({
     reviewedBy: {
     type:String,
     default: 'Guest',
+    required:true,
     trim:true
 },
 reviewedAt:{
