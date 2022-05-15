@@ -35,17 +35,17 @@ const createReview = async function (req, res) {
     }
 
     if (!bookId) {
-      return res.status(400).send({ status: false, msg: "Book-Id is required" });
+      return res.status(400).send({ status: false, message: "Book-Id is required" });
     }
 
     if (!isValidObjectId(bookId)) {
-      return res.status(400).send({ status: false, msg: "Invalid Book-Id" });
+      return res.status(400).send({ status: false, message: "Invalid Book-Id" });
     }
 
     const booksDetails = await booksModel.findOne({ _id: bookId, isDeleted: false })
 
     if (!booksDetails) {
-      return res.status(404).send({ status: false, msg: "Book-Id is not found in DB" });
+      return res.status(404).send({ status: false, message: "Book-Id is not found in DB" });
     }
 
     if (!isValid(reviewedBy)) {
@@ -76,7 +76,7 @@ const createReview = async function (req, res) {
     return res.status(201).send({ status: true, message: "Success", data: updateBookReview })
   }
   catch (error) {
-    return res.status(500).send({ status: false, message: error.message })
+    return res.status(500).send({ status: false, error: error.message })
   }
 
 }
@@ -136,11 +136,6 @@ const updateReview = async function (req, res) {
       return res.status(400).send({ status: false, message: "rating should be in range 1 to 5 " })
     }
     
-    if (!isValid(reviewedBy)) {
-      data.reviewedBy = "Guest"
-    }
-
-
     if (!isValid(reviewedBy)) {
       requestBody.reviewedBy = "Guest"
     }

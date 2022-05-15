@@ -95,26 +95,25 @@ const createUser = async function (req, res) {
         }
       }
 
-
       if (address.city != undefined) {
         if (typeof address.city != 'string' || address.city.trim().length == 0) {
-          return res.status(400).send({ status: false, data: "city can not be a empty string" })
+          return res.status(400).send({ status: false, message: "city can not be a empty string" })
         }
       }
       
       if (address.pincode != undefined) {
         if (address.pincode.toString().trim().length == 0 || address.pincode.toString().trim().length != 6) {
-          return res.status(400).send({ status: false, data: "Pincode can not be a empty string or must be 6 digit number " })
+          return res.status(400).send({ status: false, message: "Pincode can not be a empty string or must be 6 digit number " })
         }
       }
     }
 
     const userCreated = await userModel.create(data)
 
-    res.status(201).send({ status: true, data: userCreated })
+    res.status(201).send({ status: true,message:"Success" ,data: userCreated })
 
   } catch (err) {
-    res.status(500).send({ status: false, err: err.message });
+    res.status(500).send({ status: false, error: err.message });
   }
 }
 
@@ -151,7 +150,7 @@ let loginUser = async (req, res) => {
     const UserLogin = await userModel.findOne({ email, password }).lean()
 
     if (!UserLogin) {
-      return res.status(400).send({ status: false, message: "Email and password is not correct" })
+      return res.status(404).send({ status: false, message: "Email and password is not correct" })
     }
 
     const token = jwt.sign({
