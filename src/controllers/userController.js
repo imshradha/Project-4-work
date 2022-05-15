@@ -38,19 +38,19 @@ const createUser = async function (req, res) {
     }
 
     if (!isValid(title)) {
-      return res.status(400).send({ status: false, data: "title is required" })
+      return res.status(400).send({ status: false, message: "title is required" })
     }
 
     if (!(title == 'Mr' || title == 'Mrs' || title == 'Miss')) {
-      return res.status(400).send({ status: false, data: "title only can be Mr, Mrs and Miss" })
+      return res.status(400).send({ status: false, message: "title only can be Mr, Mrs and Miss" })
     }
 
     if (!isValid(name)) {
-      return res.status(400).send({ status: false, data: "Name is required" })
+      return res.status(400).send({ status: false, message: "Name is required" })
     }
 
     if (!(phone)) {
-      return res.status(400).send({ status: false, data: "Phone No. is required" })
+      return res.status(400).send({ status: false, message: "Phone No. is required" })
     }
 
     if (!phoneValidator.test(
@@ -66,11 +66,11 @@ const createUser = async function (req, res) {
     }
 
     if (!isValid(email)) {
-      return res.status(400).send({ status: false, data: "Email is required" })
+      return res.status(400).send({ status: false, message: "Email is required" })
     }
 
     if (!emailValidator.test(email)) {
-      return res.status(400).send({ status: false, data: "plz enter a valid Email" });
+      return res.status(400).send({ status: false, message: "plz enter a valid Email" });
     }
 
     const isRegisteredEmail = await userModel.findOne({ email }).lean();
@@ -157,7 +157,7 @@ let loginUser = async (req, res) => {
       userId: UserLogin._id.toString(),
       orgnaisation: "function_Up_friend",
       iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + (10 * 60)
+      exp: Math.floor(Date.now() / 1000) + (60 * 60)
     },
       "group_31_functionUp"
     );

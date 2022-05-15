@@ -55,7 +55,7 @@ let authorization = async (req, res, next) => {
         if(!bookById){
             return res.status(404).send({ status: false, message: 'book Id is not found  !!!!!!!' });
 
-        } else if (decodedToken.UserLogin != bookById.userId) {
+        } else if (decodedToken.userId != bookById.userId) {
             return res.status(403).send({ status: false, message: 'unauthorized access' });
 
         }
