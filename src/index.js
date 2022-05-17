@@ -3,12 +3,14 @@ const bodyParser = require('body-parser');
 const route = require('./routes/route.js');
 const { default: mongoose } = require('mongoose');
 const app = express();
+const DB_URI = 'mongodb://localhost:27017/urlshortener'
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
-mongoose.connect("mongodb+srv://Aman300:ByXZ2qfTNQNWF7Uj@cluster0.o4rcy.mongodb.net/group-31-project-3-DB?retryWrites=true&w=majority", {
+mongoose.connect(DB_URI,"mongodb+srv://himanshuchauhan:9760293354%40Abcd@cluster0.ej9xv.mongodb.net/test", {
     useNewUrlParser: true
 })
 .then( () => console.log("MongoDb is connected successfully......."))
