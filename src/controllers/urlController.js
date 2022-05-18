@@ -59,18 +59,48 @@ const generateShortUrl = async function(req, res) {
 
 //=========================================GET URL=============================================//
 
-const getUrlCode = async function(req, res) {
+// const getUrlCode = async function(req, res) {
+//     try {
+//         let data = await GET_ASYNC(`${req.params.urlCode}`)
+
+//         const urlData = await UrlModel.findOne({ urlCode: data })
+//         if (!urlData) return res.status(404).send({ status: false, message: "Url code does not found" })
+
+//         res.status(302).redirect(302, urlData.longUrl)
+//     } catch (err) {
+//         res.status(500).send({ status: false, message: err.message })
+//     }
+// }
+
+let getUrlCode = async function (req, res) {
     try {
-        let data = req.params.urlCode
-
-        const urlData = await UrlModel.findOne({ urlCode: data })
-        if (!urlData) return res.status(404).send({ status: false, message: "Url code does not found" })
-
-        res.status(302).redirect(302, urlData.longUrl)
-    } catch (err) {
-        res.status(500).send({ status: false, message: err.message })
+      let requestParams = req.params.urlCode;
+  
+      let cachesUrlData = await GET_ASYNC(`${requestParams}`);
+  
+      //convert to object
+      const urlData = JSON.parse(cachesUrlData);
+      if (cachesUrlData) {
+        console.log("cache");
+        return res.status(302).redirect(urlData.longUrl);
+      } else {
+        let findUrlCode = await UrlModel
+          .findOne({ urlCode: requestParams })
+          .select({ urlCode: 1, longUrl: 1, shortUrl: 1 });
+  
+        // res.redirect(findUrlCode.longUrl)
+        await SET_ASYNC(`${requestParams}`, JSON.stringify(findUrlCode));
+  
+        if (!findUrlCode) {
+          return res.status(404).send({ status: false, message: "Not found this url code." });
+        }
+        // res.status(200).send({ status: true, data: findUrlCode })
+      }
+    } catch (error) {
+      res.status(500).send({ status: false, message: error.message });
     }
-}
+  };
+  
 
 module.exports = {
     generateShortUrl,
