@@ -3,10 +3,7 @@ const router = express.Router();
 const urlcontroller = require("../controllers/urlController")
 
 //api's
-//create url
-router.post('/url/shorten', urlcontroller.generateShortUrl)
-
-//get url
+router.post('/shorten', urlcontroller.generateShortUrl)
 router.get('/:urlCode', urlcontroller.getUrlCode)
 
 //export router
