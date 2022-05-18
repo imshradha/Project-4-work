@@ -29,41 +29,13 @@ const generateShortUrl = async function(req, res) {
     }
 }
 
-
-
-//=========================================GET URL=============================================//
-
-const getUrlCode = async function(req, res) {
-    try {
-        let urlCode = req.params.urlCode
-            // find a document match to the code in in urlcode
-        const url = await urlModel.findOne({ urlCode })
-
-        //if no url found return a not found 404 status
-        if (!url) return res.status(404).send({ status: false, message: "Url not found" })
-        if (url) {
-            // when valid we perform a redirect
-            return res.redirect(url.longUrl)
-        }
-    } catch (err) {
-        res.status(500).send({ status: false, message: err.message })
-    }
-}
-
-<<<<<<< HEAD
-module.exports = {
-    generateShortUrl,
-    getUrlCode
-}
-=======
-
 //=========================================GET URL=============================================//
 
 const getUrlCode = async function(req,res) {
     try {
         let urlCode = req.params.urlCode
         // find a document match to the code in in urlcode
-        const url = await urlModel.findOne({urlCode})
+        const url = await UrlModel.findOne({urlCode})
 
         //if no url found return a not found 404 status
         if(!url) return res.status(404).send({status : false , message : "Url not found"})
@@ -76,7 +48,7 @@ const getUrlCode = async function(req,res) {
      }
 }
 
-module.exports = {createUrl, getUrlCode}
+module.exports = {generateShortUrl, getUrlCode}
 
 
 
@@ -85,4 +57,3 @@ module.exports = {createUrl, getUrlCode}
 
 
 
->>>>>>> 2b9b387e9593b237843f65d5ea1697de098414f5
