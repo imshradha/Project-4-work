@@ -39,6 +39,11 @@ const generateShortUrl = async function(req, res) {
 
         if (checkUrl) return res.status(400).send({ status: false, message: " With this Long url already a shorted Url already exists, Please Enter a New One" })
 
+        const isUrlCodeExist = await UrlModel.findOne({ urlCode: data.urlCode })
+        if (isUrlCodeExist) {
+            return res.status(200).send({ status: true, message: "urlCode is already present in DB. Please hit this API again." })
+        }
+
         const urlCodegenerate = function(length) {
             const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
             let result = ""
@@ -56,6 +61,7 @@ const generateShortUrl = async function(req, res) {
         data.urlCode = urlcode;
         data.shortUrl = shortUrl;
 
+
         let createUrl = await UrlModel.create(data)
 
         await SET_ASYNC(`${urlcode}`, JSON.stringify(createUrl))
@@ -71,6 +77,7 @@ const generateShortUrl = async function(req, res) {
 let getUrlCode = async function(req, res) {
     try {
         let requestParams = req.params.urlCode;
+
         if (requestParams.length > 6 || requestParams.length < 6) return res.status(400).send({ status: false, message: "Please enter a valid 6 digit url code." });
 
         let cachesUrlData = await GET_ASYNC(requestParams);
