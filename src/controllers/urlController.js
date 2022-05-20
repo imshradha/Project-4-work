@@ -37,7 +37,7 @@ const generateShortUrl = async function(req, res) {
 
         let checkUrl = await UrlModel.findOne({ longUrl: data.longUrl })
 
-        if (checkUrl) return res.status(400).send({ status: false, message: " With this Long url already a shorted Url already exists, Please Enter a New One" })
+        if (checkUrl) return res.status(400).send({ status: false, message: " With this Long url already a shorted Url already exists, Please Enter a New One", data: checkUrl })
 
         const urlCodegenerate = function(length) {
             const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
