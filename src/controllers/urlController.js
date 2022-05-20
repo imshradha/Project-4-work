@@ -1,6 +1,5 @@
 const UrlModel = require('../models/urlModel')
 const validUrl = require('valid-url')
-const RandomString = require('randomstring')
 const redis = require("redis");
 
 const { promisify } = require("util");
@@ -18,8 +17,6 @@ redisClient.on("connect", async function() {
     console.log("Connected to Redis..");
 });
 
-
-
 //1. connect to the server
 //2. use the commands :
 
@@ -28,6 +25,7 @@ redisClient.on("connect", async function() {
 const SET_ASYNC = promisify(redisClient.SET).bind(redisClient);
 const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
 
+//=========================================CREATE URL=============================================//
 
 const generateShortUrl = async function(req, res) {
     try {
@@ -41,16 +39,27 @@ const generateShortUrl = async function(req, res) {
 
         if (checkUrl) return res.status(400).send({ status: false, message: " With this Long url already a shorted Url already exists, Please Enter a New One" })
 
-        let urlCode = RandomString.generate({ length: 6, charset: "alphabetic" }).toLowerCase()
+        const urlCodegenerate = function(length) {
+            const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+            let result = ""
+            const charactersLength = characters.length
+            for (let i = 0; i < length; i++) {
+                result += characters.charAt(Math.floor(Math.random() * charactersLength))
+            }
+            return result.toLocaleLowerCase();
+        }
 
-        let shortUrl = `http://localhost:3000/${urlCode}`
+        let urlcode = urlCodegenerate(6)
 
-        data.urlCode = urlCode;
+        let shortUrl = `http://localhost:3000/${urlcode}`
+
+        data.urlCode = urlcode;
         data.shortUrl = shortUrl;
 
         let createUrl = await UrlModel.create(data)
-        return res.status(201).send({ status: true, data: createUrl })
 
+        await SET_ASYNC(`${urlcode}`, JSON.stringify(createUrl))
+        return res.status(201).send({ status: true, data: createUrl })
     } catch (err) {
         res.status(500).send({ status: false, message: err.message })
     }
@@ -62,35 +71,25 @@ const generateShortUrl = async function(req, res) {
 let getUrlCode = async function(req, res) {
     try {
         let requestParams = req.params.urlCode;
+        if (requestParams.length > 6 || requestParams.length < 6) return res.status(400).send({ status: false, message: "Please enter a valid 6 digit url code." });
 
         let cachesUrlData = await GET_ASYNC(requestParams);
+        let parseData = JSON.parse(cachesUrlData)
+        if (!parseData) return res.status(404).send({ status: false, message: "Short url doesn't exist" })
 
-        //convert to object
-        // const urlData = JSON.parse(cachesUrlData);
+
         if (cachesUrlData) {
-            return res.status(302).redirect(cachesUrlData);
+            return res.status(302).redirect(parseData.longUrl);
         } else {
-            let findUrlCode = await UrlModel
-                .findOne({ urlCode: requestParams })
-                .select({ urlCode: 1, longUrl: 1, shortUrl: 1 });
+            let findUrlCode = await UrlModel.findOne({ urlCode: requestParams });
+            if (!findUrlCode) return res.status(404).send({ status: false, message: "Not found this url code" });
 
-            // res.redirect(findUrlCode.longUrl)
-            await SET_ASYNC(requestParams, (findUrlCode.longUrl));
+            await SET_ASYNC(requestParams, JSON.stringify(findUrlCode.longUrl));
             return res.status(302).redirect(findUrlCode.longUrl);
-
-            if (!findUrlCode) {
-                return res.status(404).send({ status: false, message: "Not found this url code." });
-            }
-            // res.status(200).send({ status: true, data: findUrlCode })
         }
     } catch (error) {
         res.status(500).send({ status: false, message: error.message });
     }
 };
 
-
-module.exports = {
-    generateShortUrl,
-    getUrlCode,
-
-}
+module.exports = { generateShortUrl, getUrlCode }
