@@ -1,8 +1,6 @@
 const UrlModel = require('../models/urlModel')
-const validUrl = require('valid-url')
-const RandomString = require('randomstring')
+//const validUrl = require('valid-url')
 const redis = require("redis");
-
 const { promisify } = require("util");
 
 //Connect to redis
@@ -18,8 +16,6 @@ redisClient.on("connect", async function() {
     console.log("Connected to Redis..");
 });
 
-
-
 //1. connect to the server
 //2. use the commands :
 
@@ -28,24 +24,35 @@ redisClient.on("connect", async function() {
 const SET_ASYNC = promisify(redisClient.SET).bind(redisClient);
 const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
 
+//=========================================CREATE URL=============================================//
 
 const generateShortUrl = async function(req, res) {
     try {
         let data = req.body
 
         if (!Object.keys(data).length) return res.status(400).send({ status: false, message: " You must provide data first " })
-
+       
         if (!(validUrl.isWebUri(data.longUrl.trim()))) return res.status(400).send({ status: false, message: "Please Provide a valid long Url" })
 
         let checkUrl = await UrlModel.findOne({ longUrl: data.longUrl })
 
-        if (checkUrl) return res.status(400).send({ status: false, message: " With this Long url already a shorted Url already exists, Please Enter a New One" })
+        if (checkUrl) return res.status(400).send({ status: false, message: "With this Long url already a shorted Url already exists, Please Enter a New One" })
 
-        let urlCode = RandomString.generate({ length: 6, charset: "alphabetic" }).toLowerCase()
+        const urlCodegenerate = function(length) {
+            const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+            let result = ""
+            const charactersLength = characters.length
+            for (let i = 0; i < length; i++) {
+                result += characters.charAt(Math.floor(Math.random() * charactersLength))
+            }
+            return result.toLocaleLowerCase();
+        }
 
-        let shortUrl = `http://localhost:3000/${urlCode}`
+        let urlcode = urlCodegenerate(6)
 
-        data.urlCode = urlCode;
+        let shortUrl = `http://localhost:3000/${urlcode}`
+
+        data.urlCode = urlcode;
         data.shortUrl = shortUrl;
 
         let createUrl = await UrlModel.create(data)
@@ -56,54 +63,47 @@ const generateShortUrl = async function(req, res) {
     }
 }
 
-
 //=========================================GET URL=============================================//
-
-const getUrlCode = async function(req, res) {
+let getUrlCode = async function(req, res) {
     try {
-        let data = req.params.urlCode
+        let requestParams = req.params.urlCode;
+        if (requestParams.length > 6 || requestParams.length < 6) return res.status(400).send({ status: false, message: "Please enter a valid 6 digit url code." });
 
-        const urlData = await UrlModel.findOne({ urlCode: data })
-        if (!urlData) return res.status(404).send({ status: false, message: "Url code does not found" })
+        let cachesUrlData = await GET_ASYNC(requestParams);
+        let parseData = JSON.parse(cachesUrlData)
+        if (!parseData) return res.status(404).send({ status: false, message: "Short url doesn't exist" })
 
-        res.status(302).redirect(302, urlData.longUrl)
-    } catch (err) {
-        res.status(500).send({ status: false, message: err.message })
+
+        if (cachesUrlData) {
+            return res.status(302).redirect(requestParams.longUrl);
+        } else {
+            let findUrlCode = await UrlModel.findOne({ urlCode: requestParams });
+            if (!findUrlCode) return res.status(404).send({ status: false, message: "Not found this url code" });
+
+            await SET_ASYNC(requestParams, JSON.stringify(findUrlCode.longUrl));
+            return res.status(302).redirect(findUrlCode.longUrl);
+        }
+    } catch (error) {
+        res.status(500).send({ status: false, message: error.message });
     }
-}
-
-// let getUrlCode = async function (req, res) {
+};
+// let getUrlCode = async function(req, res) {
 //     try {
-//       let requestParams = req.params.urlCode;
-  
-//       let cachesUrlData = await GET_ASYNC(`${requestParams}`);
-  
-//       //convert to object
-//       const urlData = JSON.parse(cachesUrlData);
-//       if (cachesUrlData) {
-//         console.log("cache");
-//         return res.status(302).redirect(urlData.longUrl);
-//       } else {
-//         let findUrlCode = await UrlModel
-//           .findOne({ urlCode: requestParams })
-//           .select({ urlCode: 1, longUrl: 1, shortUrl: 1 });
-  
-//         // res.redirect(findUrlCode.longUrl)
-//         await SET_ASYNC(`${requestParams}`, JSON.stringify(findUrlCode));
-  
-//         if (!findUrlCode) {
-//           return res.status(404).send({ status: false, message: "Not found this url code." });
+//         let requestParams = req.params.urlCode;
+//         if(requestParams.length > 6 || requestParams.length < 6) return res.status(400).send({ status: false, message: "Please enter a valid 6 digit url code." });  
+        
+//         let cachesUrlData = await GET_ASYNC(requestParams);
+//         if(cachesUrlData) { return res.status(302).redirect(cachesUrlData);
+//         } else {
+//             let findUrlCode = await UrlModel.findOne({ urlCode: requestParams })
+//             if (!findUrlCode) return res.status(404).send({ status: false, message: "Not found this url code." });
+                
+//             await SET_ASYNC(requestParams, (findUrlCode.longUrl));
+//             return res.status(302).redirect(findUrlCode.longUrl);
 //         }
-//         // res.status(200).send({ status: true, data: findUrlCode })
-//       }
 //     } catch (error) {
-//       res.status(500).send({ status: false, message: error.message });
+//         res.status(500).send({ status: false, message: error.message });
 //     }
-//   };
-  
+// };
 
-module.exports = {
-    generateShortUrl,
-    getUrlCode,
-
-}
+module.exports = { generateShortUrl, getUrlCode }
