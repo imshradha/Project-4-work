@@ -1,5 +1,5 @@
 const UrlModel = require('../models/urlModel')
-//const validUrl = require('valid-url')
+const validUrl = require('valid-url')
 const redis = require("redis");
 const { promisify } = require("util");
 
@@ -56,8 +56,9 @@ const generateShortUrl = async function(req, res) {
         data.shortUrl = shortUrl;
 
         let createUrl = await UrlModel.create(data)
-        return res.status(201).send({ status: true, data: createUrl })
 
+        await SET_ASYNC(`${urlcode}`, JSON.stringify(createUrl))
+        return res.status(201).send({ status: true, data: createUrl })
     } catch (err) {
         res.status(500).send({ status: false, message: err.message })
     }
@@ -73,11 +74,10 @@ let getUrlCode = async function(req, res) {
         let parseData = JSON.parse(cachesUrlData)
         if (!parseData) return res.status(404).send({ status: false, message: "Short url doesn't exist" })
 
-
         if (cachesUrlData) {
-            return res.status(302).redirect(requestParams.longUrl);
+            return res.status(302).redirect(parseData.longUrl);
         } else {
-            let findUrlCode = await UrlModel.findOne({ urlCode: requestParams });
+            let findUrlCode = await UrlModel.findOne({ urlCode: requestParams }).select({urlCode:1, longUrl:1, shortUrl:1});
             if (!findUrlCode) return res.status(404).send({ status: false, message: "Not found this url code" });
 
             await SET_ASYNC(requestParams, JSON.stringify(findUrlCode.longUrl));
@@ -87,23 +87,5 @@ let getUrlCode = async function(req, res) {
         res.status(500).send({ status: false, message: error.message });
     }
 };
-// let getUrlCode = async function(req, res) {
-//     try {
-//         let requestParams = req.params.urlCode;
-//         if(requestParams.length > 6 || requestParams.length < 6) return res.status(400).send({ status: false, message: "Please enter a valid 6 digit url code." });  
-        
-//         let cachesUrlData = await GET_ASYNC(requestParams);
-//         if(cachesUrlData) { return res.status(302).redirect(cachesUrlData);
-//         } else {
-//             let findUrlCode = await UrlModel.findOne({ urlCode: requestParams })
-//             if (!findUrlCode) return res.status(404).send({ status: false, message: "Not found this url code." });
-                
-//             await SET_ASYNC(requestParams, (findUrlCode.longUrl));
-//             return res.status(302).redirect(findUrlCode.longUrl);
-//         }
-//     } catch (error) {
-//         res.status(500).send({ status: false, message: error.message });
-//     }
-// };
 
 module.exports = { generateShortUrl, getUrlCode }
