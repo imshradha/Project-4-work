@@ -36,7 +36,7 @@ const generateShortUrl = async function(req, res) {
 
         let checkUrl = await UrlModel.findOne({ longUrl: data.longUrl })
 
-        if (checkUrl) return res.status(400).send({ status: false, message: "With this Long url already a shorted Url already exists, Please Enter a New One" })
+        if (checkUrl) return res.status(400).send({ status: false, message: " With this Long url already a shorted Url already exists, Please Enter a New One", data: checkUrl })
 
         const urlCodegenerate = function(length) {
             const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
@@ -49,6 +49,11 @@ const generateShortUrl = async function(req, res) {
         }
 
         let urlcode = urlCodegenerate(6)
+
+        const isUrlCodeExist = await UrlModel.findOne({ urlCode: data.urlCode })
+        if (isUrlCodeExist) {
+            return res.status(200).send({ status: true, message: "urlCode is already present in DB. Please hit this API again." })
+        }
 
         let shortUrl = `http://localhost:3000/${urlcode}`
 
@@ -68,6 +73,7 @@ const generateShortUrl = async function(req, res) {
 let getUrlCode = async function(req, res) {
     try {
         let requestParams = req.params.urlCode;
+
         if (requestParams.length > 6 || requestParams.length < 6) return res.status(400).send({ status: false, message: "Please enter a valid 6 digit url code." });
 
         let cachesUrlData = await GET_ASYNC(requestParams);
